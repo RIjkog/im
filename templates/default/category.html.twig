@@ -1,0 +1,21 @@
+{% extends "base.html.twig" %}
+
+{% block title %}
+    {{ category.name }}
+{% endblock %}
+
+
+{% block main %}  
+    <h1> {{ category.name }} </h1>
+    <ul>
+    {% for product in products %} 
+
+        <li> <a href="{{ path('product', {id: product.id, Parent: product.Parent}) }}">{{ product.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% endblock %}
+
+
+{% block sidebar %}
+    {{ parent() }}
+{% endblock %}
