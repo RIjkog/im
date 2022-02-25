@@ -5,9 +5,12 @@ namespace App\Entity;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
 
 /**
- * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @Gedmo\Tree(type="nested")
+ * @ORM\Table(name="products")
+ * @ORM\Entity(repositoryClass="Gedmo\Tree\Entity\Repository\NestedTreeRepository")
  */
 class Product
 {
@@ -22,6 +25,37 @@ class Product
      * @ORM\Column(type="string", length=255)
      */
     private $name;
+
+    /**
+     * @Gedmo\TreeLeft
+     * @ORM\Column(type="integer")
+     */
+    private $lft;
+
+    /**
+     * @Gedmo\TreeRight
+     * @ORM\Column(type="integer")
+     */
+    private $rgt;
+
+    /**
+     * @Gedmo\TreeParent
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="products")
+     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="CASCADE")
+     */
+    private $parent;
+
+    /**
+     * @Gedmo\TreeRoot
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $root;
+
+    /**
+     * @Gedmo\TreeLevel
+     * @ORM\Column(name="lvl", type="integer")
+     */
+    private $level;
 
     /**
      * @ORM\Column(type="text")
@@ -44,11 +78,6 @@ class Product
      * @ORM\Column(type="datetime")
      */
     private $updated;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="products")
-     */
-    private $Parent;
 
     public function getId(): ?int
     {
@@ -117,13 +146,39 @@ class Product
 
     public function getParent(): ?Category
     {
-        return $this->Parent;
+        return $this->parent;
     }
 
-    public function setParent(?Category $Parent): self
+    public function setParent(?Category $parent): self
     {
-        $this->Parent = $Parent;
+        $this->parent = $parent;
 
         return $this;
     }
+
+    public function getRoot()
+    {
+        return $this->root;
+    }
+
+    public function getLevel()
+    {
+        return $this->level;
+    }
+
+    public function getChildren()
+    {
+        return $this->children;
+    }
+
+    public function getLeft()
+    {
+        return $this->lft;
+    }
+
+    public function getRight()
+    {
+        return $this->rgt;
+    }
 }
+

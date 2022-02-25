@@ -7,9 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Gedmo\Tree\Entity\Repository\NestedTreeRepository;
 
 /**
- * @ORM\Entity(repositoryClass=CategoryRepository::class)
+ * @Gedmo\Tree(type="nested")
+ * @ORM\Table(name="categories")
+ * @ORM\Entity(repositoryClass="Gedmo\Tree\Entity\Repository\NestedTreeRepository")
  */
 class Category
 {
@@ -26,6 +29,42 @@ class Category
     private $name;
 
     /**
+     * @Gedmo\TreeLeft
+     * @ORM\Column(type="integer")
+     */
+    private $lft;
+
+    /**
+     * @Gedmo\TreeRight
+     * @ORM\Column(type="integer")
+     */
+    private $rgt;
+
+    /**
+     * @Gedmo\TreeParent
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="children")
+     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="CASCADE")
+     */
+    private $parent;
+
+    /**
+     * @Gedmo\TreeRoot
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $root;
+
+    /**
+     * @Gedmo\TreeLevel
+     * @ORM\Column(name="lvl", type="integer")
+     */
+    private $level;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Category", mappedBy="parent")
+     */
+    private $children;
+
+    /**
      * @Gedmo\Timestampable(on="create")
      * @ORM\Column(type="datetime")
      */
@@ -38,28 +77,18 @@ class Category
     private $updated;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="Children")
-     */
-    private $Parent;
-
-    /**
-     * @ORM\OneToMany(targetEntity=Category::class, mappedBy="Parent")
-     */
-    private $Children;
-
-    /**
      * @ORM\Column(type="boolean")
      */
-    private $active = true;
+    private $active = true; 
 
     /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="Parent")
+     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="parent")
      */
     private $products;
 
     public function __construct()
     {
-        $this->Children = new ArrayCollection();
+        $this->children = new ArrayCollection();
         $this->products = new ArrayCollection();
     }
 
@@ -68,7 +97,7 @@ class Category
         return $this->name ?? '-';
     }
 
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
@@ -81,6 +110,53 @@ class Category
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function setParent($parent)
+    {
+        $this->parent = $parent;
+    }
+
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    public function getRoot()
+    {
+        return $this->root;
+    }
+
+    public function getLevel()
+    {
+        return $this->level;
+    }
+
+    public function getChildren()
+    {
+        return $this->children;
+    }
+
+    public function getLeft()
+    {
+        return $this->lft;
+    }
+
+    public function getRight()
+    {
+        return $this->rgt;
+    }
+
+    public function getActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
 
         return $this;
     }
@@ -105,60 +181,6 @@ class Category
     public function setUpdated(\DateTimeInterface $updated): self
     {
         $this->updated = $updated;
-
-        return $this;
-    }
-
-    public function getParent(): ?self
-    {
-        return $this->Parent;
-    }
-
-    public function setParent(?self $Parent): self
-    {
-        $this->Parent = $Parent;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, self>
-     */
-    public function getChildren(): Collection
-    {
-        return $this->Children;
-    }
-
-    public function addChild(self $child): self
-    {
-        if (!$this->Children->contains($child)) {
-            $this->Children[] = $child;
-            $child->setParent($this);
-        }
-
-        return $this;
-    }
-
-    public function removeChild(self $child): self
-    {
-        if ($this->Children->removeElement($child)) {
-            // set the owning side to null (unless already changed)
-            if ($child->getParent() === $this) {
-                $child->setParent(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getActive(): ?bool
-    {
-        return $this->active;
-    }
-
-    public function setActive(bool $active): self
-    {
-        $this->active = $active;
 
         return $this;
     }

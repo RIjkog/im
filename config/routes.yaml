@@ -5,5 +5,5 @@ category:
    path: /category-{id}
    controller: App\Controller\DefaultController::category
 product:
-   path: /{Parent}/product-{id}
+   path: /{parent}/product-{id}
    controller: App\Controller\DefaultController::product  

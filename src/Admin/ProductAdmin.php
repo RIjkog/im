@@ -49,7 +49,7 @@ final class ProductAdmin extends AbstractAdmin
             // ->add('id')
             ->add('name')
             ->add('description')
-            ->add('Parent')
+            ->add('parent')
             ->add('active')
             // ->add('created')
             // ->add('updated')
